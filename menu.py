@@ -1,21 +1,19 @@
 import tkinter as tk
-from tkinter import messagebox, font
-import random
+from tkinter import messagebox, font, simpledialog
 
-
-# メニュークラス
 class Menu:
     def __init__(self, name):
         self.name = name
+    
+    def edit(self, new_name):
+        self.name = new_name
 
-# 1日の食事クラス
 class DailyMeals:
     def __init__(self):
         self.breakfast = None
         self.lunch = None
         self.dinner = None
 
-# 週間スケジュールクラス
 class WeeklySchedule:
     def __init__(self):
         self.days = {
@@ -47,7 +45,6 @@ class WeeklySchedule:
             day.lunch = None
             day.dinner = None
 
-# アプリクラス
 class MealPlanningApp:
     def __init__(self, root):
         self.menus = []
@@ -57,11 +54,11 @@ class MealPlanningApp:
         self.root.geometry("360x640")
         
         # カラーパレットの定義
-        self.bg_color = "#FFFCD2"  # 背景色
-        self.text_color = "#FF6900"  # テキスト色
-        self.button_color = "#FF6900"  # ボタンの基本色
-        self.button_text_color = "#FFFFFF"  # ボタンのテキスト色
-        self.accent_color = "#FF6900"  # アクセントカラー
+        self.bg_color = "#FFFCD2"
+        self.text_color = "#FF6900"
+        self.button_color = "#FF6900"
+        self.button_text_color = "#FFFFFF"
+        self.accent_color = "#FF6900"
         
         self.root.configure(bg=self.bg_color)
         
@@ -90,11 +87,18 @@ class MealPlanningApp:
                                     bg=self.button_color, fg=self.button_text_color, activebackground=self.accent_color)
         add_menu_button.pack(pady=5, fill=tk.X)
         
+        edit_menu_button = tk.Button(menu_frame, text="メニューを編集", command=self.edit_menu, font=main_font, 
+                                     bg=self.button_color, fg=self.button_text_color, activebackground=self.accent_color)
+        edit_menu_button.pack(pady=5, fill=tk.X)
+        
+        delete_menu_button = tk.Button(menu_frame, text="メニューを削除", command=self.delete_menu, font=main_font, 
+                                       bg=self.button_color, fg=self.button_text_color, activebackground=self.accent_color)
+        delete_menu_button.pack(pady=5, fill=tk.X)
+        
         display_menu_button = tk.Button(menu_frame, text="メニューを表示", command=self.display_menus, font=main_font, 
                                         bg=self.button_color, fg=self.button_text_color, activebackground=self.accent_color)
         display_menu_button.pack(pady=5, fill=tk.X)
         
-        # リセットボタンを一番下に配置
         reset_menu_button = tk.Button(menu_frame, text="メニューをリセット", command=self.reset_menus, font=main_font, 
                                       bg=self.button_color, fg=self.button_text_color, activebackground=self.accent_color)
         reset_menu_button.pack(pady=5, fill=tk.X)
@@ -115,7 +119,7 @@ class MealPlanningApp:
         display_schedule_button.pack(pady=5, fill=tk.X)
 
     def add_menu(self):
-        name = self.menu_entry.get().strip()  # Get the menu name and strip any extra whitespace
+        name = self.menu_entry.get().strip()
         if not name:
             messagebox.showerror("エラー", "メニュー名を入力してください。")
             return
@@ -124,6 +128,42 @@ class MealPlanningApp:
         self.menus.append(menu)
         messagebox.showinfo("成功", f"メニュー '{name}' を追加しました。")
         self.menu_entry.delete(0, tk.END)
+    
+    def edit_menu(self):
+        if not self.menus:
+            messagebox.showerror("エラー", "編集するメニューがありません。")
+            return
+        
+        menu_names = [menu.name for menu in self.menus]
+        choice = simpledialog.askstring("メニュー編集", "編集するメニューを選択してください：\n" + "\n".join(menu_names))
+        
+        if choice:
+            for menu in self.menus:
+                if menu.name == choice:
+                    new_name = simpledialog.askstring("メニュー編集", f"'{choice}' の新しい名前を入力してください：")
+                    if new_name:
+                        menu.edit(new_name)
+                        messagebox.showinfo("成功", f"メニュー '{choice}' を '{new_name}' に変更しました。")
+                    return
+            
+            messagebox.showerror("エラー", f"メニュー '{choice}' が見つかりません。")
+    
+    def delete_menu(self):
+        if not self.menus:
+            messagebox.showerror("エラー", "削除するメニューがありません。")
+            return
+        
+        menu_names = [menu.name for menu in self.menus]
+        choice = simpledialog.askstring("メニュー削除", "削除するメニューを選択してください：\n" + "\n".join(menu_names))
+        
+        if choice:
+            for menu in self.menus:
+                if menu.name == choice:
+                    self.menus.remove(menu)
+                    messagebox.showinfo("成功", f"メニュー '{choice}' を削除しました。")
+                    return
+            
+            messagebox.showerror("エラー", f"メニュー '{choice}' が見つかりません。")
     
     def display_menus(self):
         if self.menus:
