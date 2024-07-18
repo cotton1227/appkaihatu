@@ -1,5 +1,7 @@
-import tkinter as tk
-from tkinter import messagebox, font, simpledialog
+import sys
+import random
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QGridLayout, QWidget, QLabel, QLineEdit, QMessageBox, QInputDialog
+from PyQt5.QtCore import Qt, QSize
 
 class Menu:
     def __init__(self, name):
@@ -45,140 +47,278 @@ class WeeklySchedule:
             day.lunch = None
             day.dinner = None
 
-class MealPlanningApp:
-    def __init__(self, root):
+class MealPlanningApp(QMainWindow):
+    def __init__(self):
+        super().__init__()
         self.menus = []
         self.schedule = WeeklySchedule()
-        self.root = root
-        self.root.title("2116綿貫大希")
-        self.root.geometry("360x640")
-        
-        # カラーパレットの定義
-        self.bg_color = "#FFFCD2"
-        self.text_color = "#FF6900"
-        self.button_color = "#FF6900"
-        self.button_text_color = "#FFFFFF"
-        self.accent_color = "#FF6900"
-        
-        self.root.configure(bg=self.bg_color)
-        
-        self.create_widgets()
+        self.initUI()
     
-    def create_widgets(self):
-        main_font = font.Font(family="Yu Gothic Medium", size=14, weight="bold")
-        title_font = font.Font(family="Yu Gothic Medium", size=18, weight="bold")
-        deka_font = font.Font(family="Yu Gothic Medium", size=30, weight="bold")
+    def initUI(self):
+        self.setWindowTitle("2116綿貫大希")
+        self.setGeometry(100, 100, 360, 640)
         
-        # タイトル
-        title_label = tk.Label(self.root, text="ランダム食事アプリ", font=deka_font, bg=self.bg_color, fg=self.text_color)
-        title_label.pack(pady=20)
+        central_widget = QWidget()
+        self.setCentralWidget(central_widget)
         
-        # メニュー管理フレーム
-        menu_frame = tk.Frame(self.root, bg=self.bg_color)
-        menu_frame.pack(pady=10, padx=20, fill=tk.X)
-        
-        menu_label = tk.Label(menu_frame, text="メニュー管理", font=main_font, bg=self.bg_color, fg=self.text_color)
-        menu_label.pack(pady=5)
-        
-        self.menu_entry = tk.Entry(menu_frame, font=main_font, width=20)
-        self.menu_entry.pack(pady=5, fill=tk.X)
-        
-        add_menu_button = tk.Button(menu_frame, text="メニューを追加", command=self.add_menu, font=main_font, 
-                                    bg=self.button_color, fg=self.button_text_color, activebackground=self.accent_color)
-        add_menu_button.pack(pady=5, fill=tk.X)
-        
-        edit_menu_button = tk.Button(menu_frame, text="メニューを編集", command=self.edit_menu, font=main_font, 
-                                     bg=self.button_color, fg=self.button_text_color, activebackground=self.accent_color)
-        edit_menu_button.pack(pady=5, fill=tk.X)
-        
-        delete_menu_button = tk.Button(menu_frame, text="メニューを削除", command=self.delete_menu, font=main_font, 
-                                       bg=self.button_color, fg=self.button_text_color, activebackground=self.accent_color)
-        delete_menu_button.pack(pady=5, fill=tk.X)
-        
-        display_menu_button = tk.Button(menu_frame, text="メニューを表示", command=self.display_menus, font=main_font, 
-                                        bg=self.button_color, fg=self.button_text_color, activebackground=self.accent_color)
-        display_menu_button.pack(pady=5, fill=tk.X)
-        
-        reset_menu_button = tk.Button(menu_frame, text="メニューをリセット", command=self.reset_menus, font=main_font, 
-                                      bg=self.button_color, fg=self.button_text_color, activebackground=self.accent_color)
-        reset_menu_button.pack(pady=5, fill=tk.X)
-        
-        # スケジュール管理フレーム
-        schedule_frame = tk.Frame(self.root, bg=self.bg_color)
-        schedule_frame.pack(pady=10, padx=20, fill=tk.X)
-        
-        schedule_label = tk.Label(schedule_frame, text="スケジュール管理", font=main_font, bg=self.bg_color, fg=self.text_color)
-        schedule_label.pack(pady=5)
-        
-        assign_meals_button = tk.Button(schedule_frame, text="1週間の食事をランダムに割り当て", command=self.assign_meals_randomly, font=main_font, 
-                                        bg=self.accent_color, fg=self.button_text_color, activebackground=self.button_color)
-        assign_meals_button.pack(pady=5, fill=tk.X)
-        
-        display_schedule_button = tk.Button(schedule_frame, text="週間スケジュールを表示", command=self.display_schedule, font=main_font, 
-                                            bg=self.button_color, fg=self.button_text_color, activebackground=self.accent_color)
-        display_schedule_button.pack(pady=5, fill=tk.X)
+        central_widget.setStyleSheet("background-color: #FFFFFF;")
 
-    def add_menu(self):
-        name = self.menu_entry.get().strip()
-        if not name:
-            messagebox.showerror("エラー", "メニュー名を入力してください。")
-            return
+        layout = QGridLayout()
+        central_widget.setLayout(layout)
+        
+        title = QLabel("ランダム食事アプリ")
+        title.setStyleSheet("""
+            font-size: 28px;
+            font-weight: bold;
+            color: #222222;
+            margin-bottom: 20px;
+            text-align: center;
+        """)
+        title.setAlignment(Qt.AlignCenter)  # Set alignment for the title
+        layout.addWidget(title, 0, 0, 1, 3)  # Span across 3 columns
+        
+        menu_label = QLabel("メニュー管理")
+        menu_label.setStyleSheet("""
+            font-size: 24px;
+            font-weight: bold;
+            color: #444444;
+            margin-bottom: 10px;
+        """)
+        layout.addWidget(menu_label, 1, 0, 1, 3)  # Span across 3 columns
+        
+        self.menu_entry = QLineEdit()
+        self.menu_entry.setStyleSheet("""
+            font-size: 24px;
+            background-color: #c9d2d7;
+            padding: 10px;
+            border: 1px solid #cccccc;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        """)
+        layout.addWidget(self.menu_entry, 2, 0, 1, 3)  # Span across 3 columns
+        
+        add_menu_button = self.create_button("追加")
+        layout.addWidget(add_menu_button, 3, 0)
+        add_menu_button.clicked.connect(self.add_menu)
+        
+        edit_menu_button = self.create_button("編集")
+        layout.addWidget(edit_menu_button, 3, 1)
+        edit_menu_button.clicked.connect(self.edit_menu)
+        
+        delete_menu_button = self.create_button("削除")
+        layout.addWidget(delete_menu_button, 3, 2)
+        delete_menu_button.clicked.connect(self.delete_menu)
+        
+        display_menu_button = self.create_button("表示")
+        layout.addWidget(display_menu_button, 4, 0)
+        display_menu_button.clicked.connect(self.display_menus)
+        
+        reset_menu_button = self.create_button("リセット")
+        layout.addWidget(reset_menu_button, 4, 1)
+        reset_menu_button.clicked.connect(self.reset_menus)
+        
+        schedule_label = QLabel("スケジュール管理")
+        schedule_label.setStyleSheet("""
+            font-size: 24px;
+            font-weight: bold;
+            color: #444444;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        """)
+        layout.addWidget(schedule_label, 5, 0, 1, 3)  # Span across 3 columns
+        
+        assign_meals_button = self.create_button("メニューを割り当て")
+        assign_meals_button.setFixedWidth(330)
+        layout.addWidget(assign_meals_button, 6, 0, 1, 3)  # Span across 3 columns
+        assign_meals_button.clicked.connect(self.assign_meals_randomly)
+        
+        display_schedule_button = self.create_button("スケジュールを表示")
+        display_schedule_button.setFixedWidth(330)
+        layout.addWidget(display_schedule_button, 7, 0, 1, 3)  # Span across 3 columns
+        display_schedule_button.clicked.connect(self.display_schedule)
     
+    def create_button(self, text):
+        button = QPushButton(text)
+        button.setFixedSize(QSize(100, 100))  # ボタンの固定サイズを設定
+    
+    # ボタンごとに異なる背景色を設定する例
+        if text == "追加":
+            button.setStyleSheet("""
+                QPushButton {
+                    font-size: 24px;
+                    padding: 10px;
+                    background-color: #df4d69;
+                    color: white;
+                    border: none;
+                    border-radius: 10px;
+                    margin-bottom: 10px;
+                }
+                QPushButton:hover {
+                    background-color: #c5445e;  /* ホバー時の色 */
+                }
+                QPushButton:pressed {
+                    background-color: #ac3e54;  /* 押下時の色 */
+                }
+            """)
+        elif text == "編集":
+            button.setStyleSheet("""
+                QPushButton {
+                    font-size: 24px;
+                    padding: 10px;
+                    background-color: #dba059; 
+                    color: white;
+                    border: none;
+                    border-radius: 10px;
+                    margin-bottom: 10px;
+                }
+                QPushButton:hover {
+                    background-color: #b8874c;
+                }
+                QPushButton:pressed {
+                    background-color: #a27744;
+                }
+            """)
+
+        elif text == "削除":
+            button.setStyleSheet("""
+                QPushButton {
+                    font-size: 24px;
+                    padding: 10px;
+                    background-color: #c8682c;
+                    color: white;
+                    border: none;
+                    border-radius: 10px;
+                    margin-bottom: 10px;
+                }
+                QPushButton:hover {
+                    background-color: #b8632e;
+                }
+                QPushButton:pressed {
+                    background-color: #9c5326;
+                }
+            """)
+
+        elif text == "表示":
+            button.setStyleSheet("""
+                QPushButton {
+                    font-size: 24px;
+                    padding: 10px;
+                    background-color: #dba059; 
+                    color: white;
+                    border: none;
+                    border-radius: 10px;
+                    margin-bottom: 10px;
+                }
+                QPushButton:hover {
+                    background-color: #b8874c;
+                }
+                QPushButton:pressed {
+                    background-color: #a27744;
+                }
+            """)
+
+        elif text == "リセット":
+            button.setStyleSheet("""
+                QPushButton {
+                    font-size: 24px;
+                    padding: 10px;
+                    background-color: #c8682c;
+                    color: white;
+                    border: none;
+                    border-radius: 10px;
+                    margin-bottom: 10px;
+                }
+                QPushButton:hover {
+                    background-color: #b8632e;
+                }
+                QPushButton:pressed {
+                    background-color: #9c5326;
+                }
+            """)
+
+        else:
+            # デフォルトのスタイルシート（他のボタンにも適用される）
+            button.setStyleSheet("""
+                QPushButton {
+                    font-size: 24px;
+                    padding: 10px;
+                    background-color: #0f8eae;
+                    color: white;
+                    border: none;
+                    border-radius: 10px;
+                    margin-bottom: 10px;
+                }
+                QPushButton:hover {
+                    background-color: #0d7791;
+                }
+                QPushButton:pressed {
+                    background-color: #0d667d;
+                }
+            """)
+        return button
+
+    
+    def add_menu(self):
+        name = self.menu_entry.text().strip()
+        if not name:
+            QMessageBox.critical(self, "エラー", "メニュー名を入力してください。")
+            return
+        
         menu = Menu(name)
         self.menus.append(menu)
-        messagebox.showinfo("成功", f"メニュー '{name}' を追加しました。")
-        self.menu_entry.delete(0, tk.END)
+        QMessageBox.information(self, "成功", f"メニュー '{name}' を追加しました。")
+        self.menu_entry.clear()
     
     def edit_menu(self):
         if not self.menus:
-            messagebox.showerror("エラー", "編集するメニューがありません。")
+            QMessageBox.critical(self, "エラー", "編集するメニューがありません。")
             return
         
         menu_names = [menu.name for menu in self.menus]
-        choice = simpledialog.askstring("メニュー編集", "編集するメニューを選択してください：\n" + "\n".join(menu_names))
+        choice, ok = QInputDialog.getItem(self, "メニュー編集", "編集するメニューを選択してください：", menu_names, 0, False)
         
-        if choice:
+        if ok and choice:
             for menu in self.menus:
                 if menu.name == choice:
-                    new_name = simpledialog.askstring("メニュー編集", f"'{choice}' の新しい名前を入力してください：")
-                    if new_name:
+                    new_name, ok = QInputDialog.getText(self, "メニュー編集", f"'{choice}' の新しい名前を入力してください：")
+                    if ok and new_name:
                         menu.edit(new_name)
-                        messagebox.showinfo("成功", f"メニュー '{choice}' を '{new_name}' に変更しました。")
+                        QMessageBox.information(self, "成功", f"メニュー '{choice}' を '{new_name}' に変更しました。")
                     return
             
-            messagebox.showerror("エラー", f"メニュー '{choice}' が見つかりません。")
+            QMessageBox.critical(self, "エラー", f"メニュー '{choice}' が見つかりません。")
     
     def delete_menu(self):
         if not self.menus:
-            messagebox.showerror("エラー", "削除するメニューがありません。")
+            QMessageBox.critical(self, "エラー", "削除するメニューがありません。")
             return
         
         menu_names = [menu.name for menu in self.menus]
-        choice = simpledialog.askstring("メニュー削除", "削除するメニューを選択してください：\n" + "\n".join(menu_names))
+        choice, ok = QInputDialog.getItem(self, "メニュー削除", "削除するメニューを選択してください：", menu_names, 0, False)
         
-        if choice:
+        if ok and choice:
             for menu in self.menus:
                 if menu.name == choice:
                     self.menus.remove(menu)
-                    messagebox.showinfo("成功", f"メニュー '{choice}' を削除しました。")
+                    QMessageBox.information(self, "成功", f"メニュー '{choice}' を削除しました。")
                     return
             
-            messagebox.showerror("エラー", f"メニュー '{choice}' が見つかりません。")
+            QMessageBox.critical(self, "エラー", f"メニュー '{choice}' が見つかりません。")
     
     def display_menus(self):
         if self.menus:
             menus_str = "\n".join([menu.name for menu in self.menus])
-            messagebox.showinfo("登録されたメニュー", menus_str)
+            QMessageBox.information(self, "登録されたメニュー", menus_str)
         else:
-            messagebox.showinfo("メニューなし", "登録されたメニューがありません。")
+            QMessageBox.information(self, "メニューなし", "登録されたメニューがありません。")
     
     def reset_menus(self):
         self.menus = []
-        messagebox.showinfo("成功", "メニューをリセットしました。")
+        QMessageBox.information(self, "成功", "メニューをリセットしました。")
     
     def assign_meals_randomly(self):
         if not self.menus:
-            messagebox.showwarning("エラー", "メニューが登録されていません。")
+            QMessageBox.warning(self, "エラー", "メニューが登録されていません。")
             return
         
         self.schedule.reset_schedule()
@@ -191,7 +331,7 @@ class MealPlanningApp:
                 random_menu = random.choice(self.menus)
                 self.schedule.assign_menu(day, meal_time, random_menu)
         
-        messagebox.showinfo("成功", "週の食事がランダムに割り当てられました。")
+        QMessageBox.information(self, "成功", "週の食事がランダムに割り当てられました。")
     
     def display_schedule(self):
         schedule_str = ""
@@ -201,10 +341,10 @@ class MealPlanningApp:
             schedule_str += f"  昼食: {meals.lunch.name if meals.lunch else '未割り当て'}\n"
             schedule_str += f"  夕食: {meals.dinner.name if meals.dinner else '未割り当て'}\n"
         
-        messagebox.showinfo("週間スケジュール", schedule_str)
+        QMessageBox.information(self, "週間スケジュール", schedule_str)
 
-# アプリの実行
 if __name__ == "__main__":
-    root = tk.Tk()
-    app = MealPlanningApp(root)
-    root.mainloop()
+    app = QApplication(sys.argv)
+    ex = MealPlanningApp()
+    ex.show()
+    sys.exit(app.exec_())
